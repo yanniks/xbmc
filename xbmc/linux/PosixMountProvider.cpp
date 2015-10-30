@@ -134,12 +134,16 @@ bool CPosixMountProvider::Eject(const std::string& mountpath)
   // just go ahead and try to umount the disk
   // if it does umount, life is good, if not, no loss.
   std::string cmd = "umount \"" + mountpath + "\"";
+#if !defined(TARGET_DARWIN_TVOS)
   int status = system(cmd.c_str());
 
   if (status == 0)
     return true;
 
   return false;
+#else
+  return true;
+#endif
 }
 
 bool CPosixMountProvider::PumpDriveChangeEvents(IStorageEventsCallback *callback)

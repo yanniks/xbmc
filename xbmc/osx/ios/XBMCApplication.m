@@ -112,12 +112,15 @@ XBMCController *m_xbmcController;
 - (void)applicationDidFinishLaunching:(UIApplication *)application 
 {
   PRINT_SIGNATURE();
-
+#if !TARGET_OS_TV
   [[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
+#endif
   UIScreen *currentScreen = [UIScreen mainScreen];
 
-  m_xbmcController = [[XBMCController alloc] initWithFrame: [currentScreen bounds] withScreen:currentScreen];  
-  m_xbmcController.wantsFullScreenLayout = YES;  
+  m_xbmcController = [[XBMCController alloc] initWithFrame: [currentScreen bounds] withScreen:currentScreen];
+#if !TARGET_OS_TV
+  m_xbmcController.wantsFullScreenLayout = YES;
+#endif
   [m_xbmcController startAnimation];
   [self registerScreenNotifications:YES];
 
@@ -137,9 +140,12 @@ XBMCController *m_xbmcController;
 {
   [self registerScreenNotifications:NO];
   [m_xbmcController stopAnimation];
+  #if !TARGET_OS_TV
   [m_xbmcController release];
-
+#endif
+#if !TARGET_OS_TV
   [super dealloc];
+#endif
 }
 @end
 
@@ -197,6 +203,7 @@ static void XBMCsendEvent(id _self, SEL _cmd, UIEvent *event)
     // a GSEventRecord among other things
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+#if !TARGET_OS_TV
     NSInteger *eventMem = (NSInteger *)[event performSelector:@selector(_gsEvent)];
 #pragma clang diagnostic pop
 
@@ -223,6 +230,7 @@ static void XBMCsendEvent(id _self, SEL _cmd, UIEvent *event)
         handleKeyCode(tmp);
       }
     }
+    #endif
   }
 }
 
@@ -236,8 +244,9 @@ __attribute__((constructor)) static void HookKeyboard(void)
   }
   else
     LOG(@"Detected 32bit system!!!");
-  
+  #if !TARGET_OS_TV
   NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+#endif
   {
     // Hook into sendEvent: to get keyboard events.
 #pragma clang diagnostic push
@@ -253,12 +262,16 @@ __attribute__((constructor)) static void HookKeyboard(void)
       ELOG(@"HookKeyboard: Couldn't hook any of the 2 known keyboard hooks (sendEvent or handleKeyUIEvent - cursor keys on btkeyboards won't work!");
 #pragma clang diagnostic pop
   }
+  #if !TARGET_OS_TV
   [pool release];
+#endif
 }
 //---------------- HOOK FOR BT KEYBOARD CURSORS KEYS END----------------
 
 int main(int argc, char *argv[]) {
-  NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];	
+  #if !TARGET_OS_TV
+  NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+#endif
   int retVal = 0;
   
   // Block SIGPIPE
@@ -283,8 +296,9 @@ int main(int argc, char *argv[]) {
   {
     ILOG(@"This always happens.");
   }
-    
+#if !TARGET_OS_TV
   [pool release];
+#endif
 	
   return retVal;
 

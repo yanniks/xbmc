@@ -22,8 +22,8 @@
  *  <http://www.gnu.org/licenses/>.
  *
  */
-#include <Platinum/Source/Platinum/Platinum.h>
-#include <Platinum/Source/Devices/MediaServer/PltSyncMediaBrowser.h>
+#include <Platinum/Platinum.h>
+#include <Platinum/PltSyncMediaBrowser.h>
 
 #include "UPnPDirectory.h"
 #include "URL.h"

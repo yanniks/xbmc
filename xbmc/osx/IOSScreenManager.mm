@@ -53,7 +53,9 @@ static CEvent screenChangeEvent;
 @synthesize _screenIdx;
 @synthesize _externalScreen;
 @synthesize _glView;
+#if !TARGET_OS_TV
 @synthesize _lastTouchControllerOrientation;
+#endif
 
 //--------------------------------------------------------------
 - (void) fadeFromBlack:(CGFloat) delaySecs
@@ -107,22 +109,26 @@ static CEvent screenChangeEvent;
     if (toExternal)
     {
       // portrait on external screen means its landscape for xbmc
-#if __IPHONE_8_0
+#if __IPHONE_8_0 && !TARGET_OS_TV
       if (CDarwinUtils::GetIOSVersion() >= 8.0 && CDarwinUtils::GetIOSVersion() < 9.0)
         [g_xbmcController activateScreen:newScreen withOrientation:UIInterfaceOrientationLandscapeLeft];// will attach the screen to xbmc mainwindow
       else
 #endif
+#if !TARGET_OS_TV
         [g_xbmcController activateScreen:newScreen withOrientation:UIInterfaceOrientationPortrait];// will attach the screen to xbmc mainwindow
+#endif
     }
     else
     {
-#if __IPHONE_8_0
-      if (CDarwinUtils::GetIOSVersion() >= 8.0)
+#if __IPHONE_8_0 && !TARGET_OS_TV
+      if (CDarwinUtils::GetIOSVersion() >= 8.0)#
         [g_xbmcController activateScreen:newScreen withOrientation:UIInterfaceOrientationPortrait];// will attach the screen to xbmc mainwindow
       else
 #endif
       // switching back to internal - use same orientation as we used for the touch controller
+#if !TARGET_OS_TV
       [g_xbmcController activateScreen:newScreen withOrientation:_lastTouchControllerOrientation];// will attach the screen to xbmc mainwindow
+#endif
     }
 
     if(toExternal)//changing the external screen might need some time ...
@@ -173,12 +179,14 @@ static CEvent screenChangeEvent;
   int screenIdx = [[dict objectForKey:@"screenIdx"] intValue];
   UIScreenMode *mode = [dict objectForKey:@"screenMode"];
 
+#if !TARGET_OS_TV
   if([self willSwitchToInternal:screenIdx] && _externalTouchController != nil)
   {
     _lastTouchControllerOrientation = [_externalTouchController interfaceOrientation];
     [_externalTouchController release];
     _externalTouchController = nil;
   }
+#endif
 
   if([self willSwitchToExternal:screenIdx])
   {
@@ -194,7 +202,9 @@ static CEvent screenChangeEvent;
     [self setScreen:screenIdx withMode:mode];
     if(activateExternalTouchController)
     {
+#if !TARGET_OS_TV
       _externalTouchController = [[IOSExternalTouchController alloc] init];
+#endif
     }
   }];
 }
@@ -284,16 +294,20 @@ static CEvent screenChangeEvent;
 //--------------------------------------------------------------
 + (void) updateResolutions
 {
+#if !TARGET_OS_TV
   g_Windowing.UpdateResolutions();
+#endif
 }
 //--------------------------------------------------------------
 - (void) dealloc
 {
+#if !TARGET_OS_TV
   if(_externalTouchController != nil )
   {
     [_externalTouchController release];
   }
   [super dealloc];
+#endif
 }
 //--------------------------------------------------------------
 + (id) sharedInstance

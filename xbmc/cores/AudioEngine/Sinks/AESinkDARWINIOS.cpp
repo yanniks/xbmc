@@ -111,8 +111,10 @@ class CAAudioUnitSink
     void         deactivateAudioSession();
  
     // callbacks
-    static void sessionPropertyCallback(void *inClientData,
-                  AudioSessionPropertyID inID, UInt32 inDataSize, const void *inData);
+#if !defined(TARGET_DARWIN_TVOS)
+  static void sessionPropertyCallback(void *inClientData,
+                                      AudioSessionPropertyID inID, UInt32 inDataSize, const void *inData);
+#endif
 
     static OSStatus renderCallback(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlags,
                   const AudioTimeStamp *inTimeStamp, UInt32 inOutputBusNumber, UInt32 inNumberFrames,
@@ -289,7 +291,7 @@ void CAAudioUnitSink::drain()
 
 void CAAudioUnitSink::setCoreAudioBuffersize()
 {
-#if !TARGET_IPHONE_SIMULATOR
+#if !TARGET_IPHONE_SIMULATOR && !TARGET_DARWIN_TVOS
   // set the buffer size, this affects the number of samples
   // that get rendered every time the audio callback is fired.
   Float32 preferredBufferSize = 512 * m_outputFormat.mChannelsPerFrame / m_outputFormat.mSampleRate;
@@ -317,22 +319,28 @@ bool CAAudioUnitSink::setCoreAudioInputFormat()
 
 void CAAudioUnitSink::setCoreAudioPreferredSampleRate()
 {
+#if !defined(TARGET_DARWIN_TVOS)
   Float64 preferredSampleRate = m_outputFormat.mSampleRate;
   CLog::Log(LOGNOTICE, "%s requesting hw samplerate %f", __PRETTY_FUNCTION__, preferredSampleRate);
   OSStatus status = AudioSessionSetProperty(kAudioSessionProperty_PreferredHardwareSampleRate,
                                    sizeof(preferredSampleRate), &preferredSampleRate);
   if (status != noErr)
     CLog::Log(LOGWARNING, "%s preferredSampleRate couldn't be set (error: %d)", __PRETTY_FUNCTION__, (int)status);
+#endif
 }
 
 Float64 CAAudioUnitSink::getCoreAudioRealisedSampleRate()
 {
+#if !defined(TARGET_DARWIN_TVOS)
   Float64 outputSampleRate = 0.0;
   UInt32 ioDataSize = sizeof(outputSampleRate);
   if (AudioSessionGetProperty(kAudioSessionProperty_CurrentHardwareSampleRate,
                               &ioDataSize, &outputSampleRate) != noErr)
     CLog::Log(LOGERROR, "%s: error getting CurrentHardwareSampleRate", __FUNCTION__);
   return outputSampleRate;
+#else
+  return 0.0;
+#endif
 }
 
 bool CAAudioUnitSink::setupAudio()
@@ -340,13 +348,14 @@ bool CAAudioUnitSink::setupAudio()
   OSStatus status = noErr;
   if (m_setup && m_audioUnit)
     return true;
-
+#if !defined(TARGET_DARWIN_TVOS)
   AudioSessionAddPropertyListener(kAudioSessionProperty_AudioRouteChange,
     sessionPropertyCallback, this);
 
   AudioSessionAddPropertyListener(kAudioSessionProperty_CurrentHardwareOutputVolume,
     sessionPropertyCallback, this);
- 
+#endif
+  
   // Audio Unit Setup
   // Describe a default output unit.
   AudioComponentDescription description = {};
@@ -414,17 +423,21 @@ bool CAAudioUnitSink::setupAudio()
 
 bool CAAudioUnitSink::checkAudioRoute()
 {
+#if !defined(TARGET_DARWIN_TVOS)
   // why do we need to know the audio route ?
   CFStringRef route;
   UInt32 propertySize = sizeof(CFStringRef);
   if (AudioSessionGetProperty(kAudioSessionProperty_AudioRoute, &propertySize, &route) != noErr)
     return false;
-
+#endif
+  
   return true;
 }
 
 bool CAAudioUnitSink::checkSessionProperties()
 {
+
+#if !defined(TARGET_DARWIN_TVOS)
   checkAudioRoute();
 
   UInt32 ioDataSize;
@@ -444,6 +457,7 @@ bool CAAudioUnitSink::checkSessionProperties()
     CLog::Log(LOGERROR, "%s: error getting CurrentHardwareIOBufferDuration", __FUNCTION__);
    
   CLog::Log(LOGDEBUG, "%s: volume = %f, latency = %f, buffer = %f", __FUNCTION__, m_outputVolume, m_outputLatency, m_bufferDuration);
+#endif
   return true;
 }
 
@@ -465,16 +479,19 @@ void CAAudioUnitSink::deactivateAudioSession()
     pause();
     AudioUnitUninitialize(m_audioUnit);
     AudioComponentInstanceDispose(m_audioUnit), m_audioUnit = NULL;
+#if !defined(TARGET_DARWIN_TVOS)
     AudioSessionRemovePropertyListenerWithUserData(kAudioSessionProperty_AudioRouteChange,
       sessionPropertyCallback, this);
     AudioSessionRemovePropertyListenerWithUserData(kAudioSessionProperty_CurrentHardwareOutputVolume,
       sessionPropertyCallback, this);
+#endif
 
     m_setup = false;
     m_activated = false;
   }
 }
 
+#if !defined(TARGET_DARWIN_TVOS)
 void CAAudioUnitSink::sessionPropertyCallback(void *inClientData,
   AudioSessionPropertyID inID, UInt32 inDataSize, const void *inData)
 {
@@ -491,6 +508,7 @@ void CAAudioUnitSink::sessionPropertyCallback(void *inClientData,
       sink->m_outputVolume = *(float*)inData;
   }
 }
+#endif
 
 inline void LogLevel(unsigned int got, unsigned int wanted)
 {

@@ -182,7 +182,9 @@ using namespace KODI::MESSAGING;
       ELOG(@"Failed to set ES context current");
     
     self.context = aContext;
+#if !TARGET_OS_TV
     [aContext release];
+#endif
 
     animating = FALSE;
     xbmcAlive = FALSE;
@@ -199,10 +201,12 @@ using namespace KODI::MESSAGING;
 - (void) dealloc
 {
   //PRINT_SIGNATURE();
-  [self deleteFramebuffer];    
+  [self deleteFramebuffer];
+#if !TARGET_OS_TV
   [context release];
   
   [super dealloc];
+#endif
 }
 
 //--------------------------------------------------------------
@@ -217,9 +221,10 @@ using namespace KODI::MESSAGING;
   if (context != newContext)
   {
     [self deleteFramebuffer];
-    
+#if !TARGET_OS_TV
     [context release];
     context = [newContext retain];
+#endif
     
     [EAGLContext setCurrentContext:nil];
   }
@@ -438,8 +443,10 @@ using namespace KODI::MESSAGING;
   // grrr, xbmc does not shutdown properly and leaves
   // several classes in an indeterminant state, we must exit and
   // reload Lowtide/AppleTV, boo.
+#if !TARGET_OS_TV
   [g_xbmcController enableScreenSaver];
   [g_xbmcController enableSystemSleep];
+#endif
   //[g_xbmcController applicationDidExit];
   exit(0);
 }

@@ -23,7 +23,7 @@
 #ifndef WINDOW_SYSTEM_IOSEGL_H
 #define WINDOW_SYSTEM_IOSEGL_H
 
-#if defined(TARGET_DARWIN_IOS)
+#if defined(TARGET_DARWIN_IOS) || defined(TARGET_DARWIN_TVOS)
 #include "windowing/WinSystem.h"
 #include "rendering/gles/RenderSystemGLES.h"
 #include "utils/GlobalsHandling.h"

@@ -17,7 +17,7 @@
  *  <http://www.gnu.org/licenses/>.
  *
  */
-#include <Platinum/Source/Platinum/Platinum.h>
+#include <Platinum/Platinum.h>
 
 #include "UPnPInternal.h"
 #include "UPnP.h"
@@ -252,9 +252,11 @@ PopulateObjectFromTag(CMusicInfoTag&         tag,
     if (object.m_ReferenceID == object.m_ObjectID)
         object.m_ReferenceID = "";
 
+#if !defined(TARGET_DARWIN_TVOS)
     object.m_MiscInfo.last_time = tag.GetLastPlayed().GetAsW3CDateTime().c_str();
     object.m_MiscInfo.play_count = tag.GetPlayCount();
-
+#endif
+  
     if (resource) resource->m_Duration = tag.GetDuration();
 
     return NPT_SUCCESS;
@@ -310,6 +312,7 @@ PopulateObjectFromTag(CVideoInfoTag&         tag,
     if(object.m_ReferenceID == object.m_ObjectID)
         object.m_ReferenceID = "";
 
+#if !defined(TARGET_DARWIN_TVOS)
     for (unsigned int index = 0; index < tag.m_studio.size(); index++)
         object.m_People.publisher.Add(tag.m_studio[index].c_str());
 
@@ -340,6 +343,7 @@ PopulateObjectFromTag(CVideoInfoTag&         tag,
     object.m_MiscInfo.last_position = (NPT_UInt32)tag.m_resumePoint.timeInSeconds;
     object.m_MiscInfo.last_time = tag.m_lastPlayed.GetAsW3CDateTime().c_str();
     object.m_MiscInfo.play_count = tag.m_playCount;
+#endif
     if (resource) {
         resource->m_Duration = tag.GetDuration();
         if (tag.HasStreamDetails()) {
@@ -528,7 +532,9 @@ BuildObject(CFileItem&                    item,
                   container->m_ObjectClass.type += ".album.videoAlbum";
                   container->m_Recorded.series_title = tag.m_strShowTitle.c_str();
                   container->m_Recorded.episode_number = tag.m_iEpisode;
+#if !defined(TARGET_DARWIN_TVOS)
                   container->m_MiscInfo.play_count = tag.m_playCount;
+#endif
                   container->m_Title = tag.m_strTitle.c_str();
                   if (!tag.m_premiered.IsValid() && tag.m_iYear)
                     container->m_Date = CDateTime(tag.m_iYear, 1, 1, 0, 0, 0).GetAsW3CDateTime().c_str();
@@ -543,7 +549,9 @@ BuildObject(CFileItem&                    item,
                   }
 
                   for (unsigned int index = 0; index < tag.m_director.size(); index++)
+#if !defined(TARGET_DARWIN_TVOS)
                     container->m_People.directors.Add(tag.m_director[index].c_str());
+#endif
                   for (unsigned int index = 0; index < tag.m_writingCredits.size(); index++)
                     container->m_People.authors.Add(tag.m_writingCredits[index].c_str());
 
@@ -611,8 +619,10 @@ BuildObject(CFileItem&                    item,
         for (CGUIListItem::ArtMap::const_iterator itArtwork = item.GetArt().begin(); itArtwork != item.GetArt().end(); ++itArtwork) {
             if (!itArtwork->first.empty() && !itArtwork->second.empty()) {
                 std::string wrappedUrl = CTextureUtils::GetWrappedImageURL(itArtwork->second);
+#if !defined(TARGET_DARWIN_TVOS)
                 object->m_XbmcInfo.artwork.Add(itArtwork->first.c_str(),
-                  upnp_server->BuildSafeResourceUri(rooturi, (*ips.GetFirstItem()).ToString(), wrappedUrl.c_str()));
+#endif
+                  upnp_server->BuildSafeResourceUri(rooturi, (*ips.GetFirstItem()).ToString(), wrappedUrl.c_str());
                 upnp_server->AddSafeResourceUri(object, rooturi, ips, wrappedUrl.c_str(), ("xbmc.org:*:" + itArtwork->first + ":*").c_str());
             }
         }
@@ -695,6 +705,7 @@ BuildObject(CFileItem&                    item,
             NPT_String subtitle_uri = object->m_Resources[object->m_Resources.GetItemCount() - 1].m_Uri;
 
             // add subtitle to video resource (the first one) (for some devices)
+#if !defined(TARGET_DARWIN_TVOS)
             object->m_Resources[0].m_CustomData["xmlns:pv"] = "http://www.pv.com/pvns/";
             object->m_Resources[0].m_CustomData["pv:subtitleFileUri"] = subtitle_uri;
             object->m_Resources[0].m_CustomData["pv:subtitleFileType"] = ext.c_str();
@@ -707,7 +718,8 @@ BuildObject(CFileItem&                    item,
             object->m_SecResources.Add(sec_res);
             sec_res.name = "CaptionInfo";
             object->m_SecResources.Add(sec_res);
-
+#endif
+          
             // adding subtitle uri for movie md5, for later use in http response
             NPT_String movie_md5 = object->m_Resources[0].m_Uri;
             movie_md5 = movie_md5.Right(movie_md5.GetLength() - movie_md5.Find("/%25/") - 5);
@@ -763,6 +775,7 @@ PopulateTagFromObject(CMusicInfoTag&         tag,
     }
 
     tag.SetAlbum((const char*)object.m_Affiliation.album);
+#if !defined(TARGET_DARWIN_TVOS)
     CDateTime last;
     last.SetFromW3CDateTime((const char*)object.m_MiscInfo.last_time);
     tag.SetLastPlayed(last);
@@ -770,6 +783,7 @@ PopulateTagFromObject(CMusicInfoTag&         tag,
     if(resource)
         tag.SetDuration(resource->m_Duration);
     tag.SetLoaded();
+#endif
     return NPT_SUCCESS;
 }
 
@@ -822,6 +836,7 @@ PopulateTagFromObject(CVideoInfoTag&         tag,
     if (date.IsValid())
       tag.m_iYear = date.GetYear();
 
+#if !defined(TARGET_DARWIN_TVOS)
     for (unsigned int index = 0; index < object.m_People.publisher.GetItemCount(); index++)
         tag.m_studio.push_back(object.m_People.publisher.GetItem(index)->GetChars());
 
@@ -832,7 +847,8 @@ PopulateTagFromObject(CVideoInfoTag&         tag,
     for (unsigned int index = 0; index < object.m_XbmcInfo.countries.GetItemCount(); index++)
       tag.m_country.push_back(object.m_XbmcInfo.countries.GetItem(index)->GetChars());
     tag.m_iUserRating = object.m_XbmcInfo.user_rating;
-
+#endif
+  
     for (unsigned int index = 0; index < object.m_Affiliation.genres.GetItemCount(); index++)
     {
       // ignore single "Unknown" genre inserted by Platinum
@@ -842,8 +858,10 @@ PopulateTagFromObject(CVideoInfoTag&         tag,
 
       tag.m_genre.push_back(object.m_Affiliation.genres.GetItem(index)->GetChars());
     }
+#if !defined(TARGET_DARWIN_TVOS)
     for (unsigned int index = 0; index < object.m_People.directors.GetItemCount(); index++)
       tag.m_director.push_back(object.m_People.directors.GetItem(index)->name.GetChars());
+#endif
     for (unsigned int index = 0; index < object.m_People.authors.GetItemCount(); index++)
       tag.m_writingCredits.push_back(object.m_People.authors.GetItem(index)->name.GetChars());
     for (unsigned int index = 0; index < object.m_People.actors.GetItemCount(); index++)
@@ -857,18 +875,22 @@ PopulateTagFromObject(CVideoInfoTag&         tag,
     tag.m_strPlot     = object.m_Description.long_description;
     tag.m_strMPAARating = object.m_Description.rating;
     tag.m_strShowTitle = object.m_Recorded.series_title;
+#if !defined(TARGET_DARWIN_TVOS)
     tag.m_lastPlayed.SetFromW3CDateTime((const char*)object.m_MiscInfo.last_time);
     tag.m_playCount = object.m_MiscInfo.play_count;
-
+#endif
+  
     if(resource)
     {
       if (resource->m_Duration)
         tag.m_duration = resource->m_Duration;
+#if !defined(TARGET_DARWIN_TVOS)
       if (object.m_MiscInfo.last_position > 0 )
       {
         tag.m_resumePoint.totalTimeInSeconds = resource->m_Duration;
         tag.m_resumePoint.timeInSeconds = object.m_MiscInfo.last_position;
       }
+#endif
       if (!resource->m_Resolution.IsEmpty())
       {
         int width, height;
@@ -980,10 +1002,12 @@ CFileItemPtr BuildObject(PLT_MediaObject* entry,
   else if(entry->m_Description.icon_uri.GetLength())
     pItem->SetArt("thumb", (const char*) entry->m_Description.icon_uri);
 
+#if !defined(TARGET_DARWIN_TVOS)
   for (unsigned int index = 0; index < entry->m_XbmcInfo.artwork.GetItemCount(); index++)
       pItem->SetArt(entry->m_XbmcInfo.artwork.GetItem(index)->type.GetChars(),
                     entry->m_XbmcInfo.artwork.GetItem(index)->url.GetChars());
-
+#endif
+  
   // set the watched overlay, as this will not be set later due to
   // content set on file item list
   if (pItem->HasVideoInfoTag()) {

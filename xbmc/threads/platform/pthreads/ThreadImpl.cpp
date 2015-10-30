@@ -68,7 +68,7 @@ void CThread::SetThreadInfo()
 #endif
 #elif defined(TARGET_ANDROID)
   m_ThreadOpaque.LwpId = gettid();
-#else
+#elif !defined(TARGET_DARWIN_TVOS)
   m_ThreadOpaque.LwpId = syscall(SYS_gettid);
 #endif
 

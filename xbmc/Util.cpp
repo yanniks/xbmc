@@ -1500,6 +1500,7 @@ bool CUtil::Command(const std::vector<std::string>& arrArgs, bool waitExit)
   printf("\n");
 #endif
 
+#if !defined(TARGET_DARWIN_TVOS)
   pid_t child = fork();
   int n = 0;
   if (child == 0)
@@ -1529,6 +1530,9 @@ bool CUtil::Command(const std::vector<std::string>& arrArgs, bool waitExit)
   {
     waitpid(child, &n, 0);
   }
+#else
+  int n = 1;
+#endif
 
   return (waitExit) ? (WEXITSTATUS(n) == 0) : true;
 }

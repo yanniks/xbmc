@@ -53,7 +53,9 @@ const CGFloat timeFadeSecs                    = 2.0;
     [_touchView setAutoresizesSubviews:YES];
     [_touchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [_touchView setAlpha:0.0];//start with alpha 0 and fade in with animation below
+#if !TARGET_OS_TV
     [_touchView setMultipleTouchEnabled:YES];
+#endif
     [_touchView setContentMode:UIViewContentModeCenter];
     
     
@@ -68,7 +70,9 @@ const CGFloat timeFadeSecs                    = 2.0;
     [descriptionLabel setTextAlignment:NSTextAlignmentCenter];
     [descriptionLabel setContentMode:UIViewContentModeCenter];
     //setup multiline behaviour
+#if !TARGET_OS_TV
     [descriptionLabel setLineBreakMode:(NSLineBreakMode)UILineBreakModeTailTruncation];
+#endif
 
     [descriptionLabel setNumberOfLines:5];
     std::string descText    = g_localizeStrings.Get(34404) + "\n";
@@ -80,13 +84,17 @@ const CGFloat timeFadeSecs                    = 2.0;
     NSString *stringFromUTFString = [[NSString alloc] initWithUTF8String:descText.c_str()];
     
     [descriptionLabel setText:stringFromUTFString];
+#if !TARGET_OS_TV
     [stringFromUTFString release];
+#endif
 
     //resize it to full view
     [descriptionLabel setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [descriptionLabel setAutoresizesSubviews:YES];
     [_touchView addSubview:descriptionLabel];
+#if !TARGET_OS_TV
     [descriptionLabel release];
+#endif
 
     //load the splash image
     std::string strUserSplash = CSpecialProtocol::TranslatePath("special://xbmc/media/Splash.png");
@@ -103,7 +111,9 @@ const CGFloat timeFadeSecs                    = 2.0;
     [_touchView addSubview:xbmcLogoView];
     //send the image to the background
     [_touchView sendSubviewToBack:xbmcLogoView];
+#if !TARGET_OS_TV
     [xbmcLogoView release];
+#endif
   
     [[self view] addSubview: _touchView];
 
@@ -114,8 +124,9 @@ const CGFloat timeFadeSecs                    = 2.0;
     [_internalWindow setScreen:[UIScreen mainScreen]];
     [_internalWindow makeKeyAndVisible];
     [_internalWindow setRootViewController:self];
-
+#if !TARGET_OS_TV
     [self setWantsFullScreenLayout:YES];
+#endif
 
     [self startSleepTimer];//will fade from black too
   }
@@ -144,7 +155,9 @@ const CGFloat timeFadeSecs                    = 2.0;
   if(_sleepTimer != nil)
   {
     [_sleepTimer invalidate];
+#if !TARGET_OS_TV
     [_sleepTimer release];
+#endif
     _sleepTimer = nil;
   }
 }
@@ -191,6 +204,7 @@ const CGFloat timeFadeSecs                    = 2.0;
   //2 finger single tab - right mouse
   //single finger double tab delays single finger single tab - so we
   //go for 2 fingers here - so single finger single tap is instant
+  #if !TARGET_OS_TV
   UITapGestureRecognizer *doubleFingerSingleTap = [[UITapGestureRecognizer alloc]
                                                     initWithTarget:self action:@selector(handleDoubleFingerSingleTap:)];  
   [doubleFingerSingleTap setNumberOfTapsRequired:1];
@@ -202,7 +216,7 @@ const CGFloat timeFadeSecs                    = 2.0;
   UITapGestureRecognizer *singleFingerSingleLongTap = (UITapGestureRecognizer*)[[UILongPressGestureRecognizer alloc]
                                                         initWithTarget:self action:@selector(handleSingleFingerSingleLongTap:)];  
   singleFingerSingleLongTap.delaysTouchesBegan = YES;
-  singleFingerSingleLongTap.delaysTouchesEnded = YES;  
+  singleFingerSingleLongTap.delaysTouchesEnded = YES;
   singleFingerSingleLongTap.numberOfTouchesRequired = 1;
   [self.view addGestureRecognizer:singleFingerSingleLongTap];
   [singleFingerSingleLongTap release];
@@ -253,6 +267,7 @@ const CGFloat timeFadeSecs                    = 2.0;
   [swipeDown setDirection:UISwipeGestureRecognizerDirectionDown];
   [[self view] addGestureRecognizer:swipeDown];
   [swipeDown release];
+  #endif
   
 }
 //--------------------------------------------------------------
@@ -332,9 +347,11 @@ const CGFloat timeFadeSecs                    = 2.0;
 - (void)dealloc
 {
   [self stopSleepTimer];
-  [_touchView release];  
+#if !TARGET_OS_TV
+  [_touchView release];
   [_internalWindow release];
-  [super dealloc];  
+  [super dealloc];
+#endif
 }
 //--------------------------------------------------------------
 // - iOS6 rotation API - will be called on iOS7 runtime!--------

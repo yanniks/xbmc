@@ -48,7 +48,9 @@ typedef enum
   bool touchBeginSignaled;
   int  m_screenIdx;
 
+#if !TARGET_OS_TV
   UIInterfaceOrientation orientation;
+#endif
   
   bool m_isPlayingBeforeInactive;
   UIBackgroundTaskIdentifier m_bgTask;
@@ -80,7 +82,9 @@ typedef enum
 - (bool) presentFramebuffer;
 - (CGSize) getScreenSize;
 - (CGFloat) getScreenScale:(UIScreen *)screen;
+#if !TARGET_OS_TV
 - (UIInterfaceOrientation) getOrientation;
+#endif
 - (void) createGestureRecognizers;
 - (void) activateKeyboard:(UIView *)view;
 - (void) deactivateKeyboard:(UIView *)view;
@@ -92,7 +96,9 @@ typedef enum
 - (void) disableScreenSaver;
 - (void) enableScreenSaver;
 - (bool) changeScreen: (unsigned int)screenIdx withMode:(UIScreenMode *)mode;
+#if !TARGET_OS_TV
 - (void) activateScreen: (UIScreen *)screen withOrientation:(UIInterfaceOrientation)newOrientation;
+#endif
 - (id)   initWithFrame:(CGRect)frame withScreen:(UIScreen *)screen;
 @end
 

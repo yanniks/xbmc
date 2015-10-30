@@ -17,7 +17,7 @@
  *  <http://www.gnu.org/licenses/>.
  *
  */
-#include <Platinum/Source/Platinum/Platinum.h>
+#include <Platinum/Platinum.h>
 
 #include "UPnPServer.h"
 #include "UPnPInternal.h"
@@ -186,7 +186,11 @@ CUPnPServer::PropagateUpdates()
     }
 
     // set the value, Platinum will clear ContainerUpdateIDs after sending
-    NPT_CHECK_LABEL(service->SetStateVariable("ContainerUpdateIDs", buffer.substr(0,buffer.size()-1).c_str(), true), failed);
+#if defined(TARGET_DARWIN_TVOS)
+  NPT_CHECK_LABEL(service->SetStateVariable("ContainerUpdateIDs", buffer.substr(0,buffer.size()-1).c_str()), failed);
+#else
+  NPT_CHECK_LABEL(service->SetStateVariable("ContainerUpdateIDs", buffer.substr(0,buffer.size()-1).c_str(), true), failed);
+#endif
     NPT_CHECK_LABEL(service->IncStateVariable("SystemUpdateID"), failed);
 
     service->PauseEventing(false);

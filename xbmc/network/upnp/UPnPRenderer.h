@@ -18,7 +18,7 @@
  *
  */
 #pragma once
-#include <Platinum/Source/Devices/MediaRenderer/PltMediaRenderer.h>
+#include <Platinum/PltMediaRenderer.h>
 
 #include "interfaces/IAnnouncer.h"
 

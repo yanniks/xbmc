@@ -30,14 +30,18 @@
 
   unsigned int  _screenIdx;
   bool _externalScreen;
+#if !TARGET_OS_TV
   IOSEAGLView *_glView;
   IOSExternalTouchController *_externalTouchController;
   UIInterfaceOrientation _lastTouchControllerOrientation;
+#endif
 }
 @property (readonly, getter=GetScreenIdx)unsigned int  _screenIdx;
 @property (readonly, getter=isExternalScreen)bool _externalScreen;
 @property (assign, setter=setView:) IOSEAGLView *_glView;
+#if !TARGET_OS_TV
 @property UIInterfaceOrientation _lastTouchControllerOrientation;
+#endif
 
 // init the screenmanager with our eaglview
 //- (id)      initWithView:(IOSEAGLView *)view;

@@ -72,7 +72,9 @@ bool CIOSKeyboard::ShowAndGetInput(char_callback_t pCallback, const std::string 
     if (confirmed)
       typedString = [g_pIosKeyboard.text UTF8String];
   }
+  #if !TARGET_OS_TV
   [g_pIosKeyboard release]; // bye bye native keyboard
+#endif
   @synchronized([KeyboardView class])
   {
     g_pIosKeyboard = nil;

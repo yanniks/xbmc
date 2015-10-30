@@ -107,7 +107,7 @@ void CalculateYUVMatrix(TransformMatrix &matrix
       coef.m[row][col] = conv[col][row];
   coef.identity = false;
 
-
+#if !defined(TARGET_DARWIN_TVOS)
   if(g_Windowing.UseLimitedColor())
   {
     matrix *= TransformMatrix::CreateTranslation(+ 16.0f / 255
@@ -117,6 +117,7 @@ void CalculateYUVMatrix(TransformMatrix &matrix
                                           , (235 - 16) / 255.0f
                                           , (235 - 16) / 255.0f);
   }
+#endif
 
   matrix *= coef;
   matrix *= TransformMatrix::CreateTranslation(0.0, -0.5, -0.5);

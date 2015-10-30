@@ -18,7 +18,7 @@
  *
  */
 
-#if defined(TARGET_DARWIN_IOS)
+#if defined(TARGET_DARWIN_IOS) || defined(TARGET_DARWIN_TVOS)
 //hack around problem with xbmc's typedef int BOOL
 // and obj-c's typedef unsigned char BOOL
 #define BOOL XBMC_BOOL 
@@ -78,7 +78,9 @@ CWinSystemIOS::CWinSystemIOS() : CWinSystemBase()
 
 CWinSystemIOS::~CWinSystemIOS()
 {
+#if !TARGET_OS_TV
   [m_pDisplayLink->callbackClass release];
+#endif
   delete m_pDisplayLink;
 }
 

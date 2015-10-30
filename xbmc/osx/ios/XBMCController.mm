@@ -91,24 +91,32 @@ NSArray *arrayFromVariantArray(const CVariant &data)
 {
   if (!data.isArray())
     return nil;
+#if !TARGET_OS_TV
   NSMutableArray *array = [[[NSMutableArray alloc] initWithCapacity:data.size()] autorelease];
   for (CVariant::const_iterator_array itr = data.begin_array(); itr != data.end_array(); ++itr)
   {
     [array addObject:objectFromVariant(*itr)];
   }
   return array;
+#else
+  return nil;
+#endif
 }
 
 NSDictionary *dictionaryFromVariantMap(const CVariant &data)
 {
   if (!data.isObject())
     return nil;
+#if !TARGET_OS_TV
   NSMutableDictionary *dict = [[[NSMutableDictionary alloc] initWithCapacity:data.size()] autorelease];
   for (CVariant::const_iterator_map itr = data.begin_map(); itr != data.end_map(); ++itr)
   {
     [dict setValue:objectFromVariant(itr->second) forKey:[NSString stringWithUTF8String:itr->first.c_str()]];
   }
   return dict;
+#else
+  return nil;
+#endif
 }
 
 id objectFromVariant(const CVariant &data)
@@ -253,10 +261,12 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
 - (void) sendKeypressEvent: (XBMC_Event) event
 {
   event.type = XBMC_KEYDOWN;
+#if !TARGET_OS_TV
   CWinEvents::MessagePush(&event);
 
   event.type = XBMC_KEYUP;
   CWinEvents::MessagePush(&event);
+#endif
 }
 
 // START OF UIKeyInput protocol
@@ -333,7 +343,9 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
   if (CDarwinUtils::GetIOSVersion() < 8.0)
 #endif
   {
+#if !TARGET_OS_TV
     orientation = toInterfaceOrientation;
+#endif
     CGRect srect = [IOSScreenManager getLandscapeResolution: [m_glView getCurrentScreen]];
     CGRect rect = srect;;
   
@@ -355,10 +367,12 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
   }
 }
 
+#if !TARGET_OS_TV
 - (UIInterfaceOrientation) getOrientation
 {
 	return orientation;
 }
+#endif
 
 -(void)sendKey:(XBMCKey) key
 {
@@ -373,6 +387,7 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
 //--------------------------------------------------------------
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
+#if !TARGET_OS_TV
   if ([gestureRecognizer isKindOfClass:[UIRotationGestureRecognizer class]] && [otherGestureRecognizer isKindOfClass:[UIPinchGestureRecognizer class]]) {
     return YES;
   }
@@ -380,13 +395,14 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
   if ([gestureRecognizer isKindOfClass:[UISwipeGestureRecognizer class]] && [otherGestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
     return YES;
   }
-
+#endif
   
   return NO;
 }
 //--------------------------------------------------------------
 - (void)addSwipeGesture:(UISwipeGestureRecognizerDirection)direction numTouches : (NSUInteger)numTouches
 {
+#if !TARGET_OS_TV
   UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc]
                                           initWithTarget:self action:@selector(handleSwipe:)];
 
@@ -396,10 +412,12 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
   swipe.delegate = self;
   [m_glView addGestureRecognizer:swipe];
   [swipe release];
+#endif
 }
 //--------------------------------------------------------------
 - (void)addTapGesture:(NSUInteger)numTouches
 {
+#if !TARGET_OS_TV
   UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc]
                                                    initWithTarget:self action:@selector(handleTap:)];
 
@@ -409,10 +427,12 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
 
   [m_glView addGestureRecognizer:tapGesture];
   [tapGesture release];
+#endif
 }
 //--------------------------------------------------------------
 - (void)createGestureRecognizers 
 {
+#if !TARGET_OS_TV
   //1 finger single tap
   [self addTapGesture:1];
 
@@ -495,6 +515,7 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
   rotate.delegate = self;
   [m_glView addGestureRecognizer:rotate];
   [rotate release];
+#endif
 }
 //--------------------------------------------------------------
 - (void) activateKeyboard:(UIView *)view
@@ -522,6 +543,7 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
   }
 }
 //--------------------------------------------------------------
+#if !TARGET_OS_TV
 -(void)handlePinch:(UIPinchGestureRecognizer*)sender
 {
   if( [m_glView isXBMCAlive] )//NO GESTURES BEFORE WE ARE UP AND RUNNING
@@ -572,6 +594,7 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
     }
   }
 }
+#endif
 //--------------------------------------------------------------
 - (IBAction)handlePan:(UIPanGestureRecognizer *)sender 
 {
@@ -737,7 +760,9 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
                  name: nil
                object: nil];
 
+#if !TARGET_OS_TV
   orientation = UIInterfaceOrientationLandscapeLeft;
+#endif
 
 #if __IPHONE_8_0
   if (CDarwinUtils::GetIOSVersion() < 8.0)
@@ -751,7 +776,9 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
   
     m_glView = [[IOSEAGLView alloc] initWithFrame: srect withScreen:screen];
     [[IOSScreenManager sharedInstance] setView:m_glView];
+#if !TARGET_OS_TV
     [m_glView setMultipleTouchEnabled:YES];
+#endif
   
     /* Check if screen is Retina */
     screenScale = [m_glView getScreenScale:screen];
@@ -781,7 +808,9 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
   
     m_glView = [[IOSEAGLView alloc] initWithFrame:self.view.bounds withScreen:[UIScreen mainScreen]];
     [[IOSScreenManager sharedInstance] setView:m_glView];
+#if !TARGET_OS_TV
     [m_glView setMultipleTouchEnabled:YES];
+#endif
   
     /* Check if screen is Retina */
     screenScale = [m_glView getScreenScale:[UIScreen mainScreen]];
@@ -806,15 +835,20 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
 
   AnnounceReceiver::dealloc();
   [m_glView stopAnimation];
+  
+#if !TARGET_OS_TV
   [m_glView release];
   [m_window release];
+#endif
 
   NSNotificationCenter *center;
   // take us off the default center for our app
   center = [NSNotificationCenter defaultCenter];
   [center removeObserver: self];
   
+#if !TARGET_OS_TV
   [super dealloc];
+#endif
 }
 //--------------------------------------------------------------
 - (void)viewWillAppear:(BOOL)animated
@@ -856,7 +890,11 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
   // which would be shown whenever this UIResponder
   // becomes the first responder (which is always the case!)
   // caused by implementing the UIKeyInput protocol
+#if !TARGET_OS_TV
   return [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
+#else
+  return nil;
+#endif
 }
 //--------------------------------------------------------------
 - (BOOL) canBecomeFirstResponder
@@ -963,6 +1001,7 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
   return ret;
 }
 //--------------------------------------------------------------
+#if !TARGET_OS_TV
 - (void) activateScreen: (UIScreen *)screen  withOrientation:(UIInterfaceOrientation)newOrientation
 {
   // Since ios7 we have to handle the orientation manually
@@ -997,6 +1036,7 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
   [view setFrame:m_window.frame];
 #endif
 }
+#endif
 //--------------------------------------------------------------
 - (void) remoteControlReceivedWithEvent: (UIEvent *) receivedEvent {
   LOG(@"%s: type %d, subtype: %d", __PRETTY_FUNCTION__, receivedEvent.type, receivedEvent.subtype);
@@ -1111,11 +1151,13 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
 //--------------------------------------------------------------
 - (void)setIOSNowPlayingInfo:(NSDictionary *)info
 {
+#if !TARGET_OS_TV
   self.nowPlayingInfo = info;
   // MPNowPlayingInfoCenter is an ios5+ class, following code will work on ios5 even if compiled by xcode3
   Class NowPlayingInfoCenter = NSClassFromString(@"MPNowPlayingInfoCenter");
   if (NowPlayingInfoCenter)
     [[NowPlayingInfoCenter defaultCenter] setNowPlayingInfo:self.nowPlayingInfo];
+#endif
 }
 //--------------------------------------------------------------
 - (void)onPlay:(NSDictionary *)item
@@ -1150,12 +1192,14 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
       UIImage *image = [UIImage imageWithContentsOfFile:thumb];
       if (image)
       {
+#if !TARGET_OS_TV
         MPMediaItemArtwork *mArt = [[MPMediaItemArtwork alloc] initWithImage:image];
         if (mArt)
         {
           [dict setObject:mArt forKey:MPMediaItemPropertyArtwork];
           [mArt release];
         }
+#endif
       }
     }
     // these proprity keys are ios5+ only
@@ -1186,7 +1230,9 @@ AnnounceReceiver *AnnounceReceiver::g_announceReceiver = NULL;
    */
 
   [self setIOSNowPlayingInfo:dict];
+#if !TARGET_OS_TV
   [dict release];
+#endif
 
   m_playbackState = IOS_PLAYBACK_PLAYING;
   [self disableNetworkAutoSuspend];

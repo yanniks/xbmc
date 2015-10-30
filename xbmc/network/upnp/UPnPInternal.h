@@ -18,9 +18,9 @@
  *
  */
 #pragma once
-#include <Neptune/Source/Core/NptTypes.h>
-#include <Neptune/Source/Core/NptReferences.h>
-#include <Neptune/Source/Core/NptStrings.h>
+#include <Platinum/NptTypes.h>
+#include <Platinum/NptReferences.h>
+#include <Platinum/NptStrings.h>
 
 #include "system.h"
 #include "FileItem.h"

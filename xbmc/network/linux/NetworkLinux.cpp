@@ -551,6 +551,7 @@ bool CNetworkLinux::PingHost(unsigned long remote_ip, unsigned int timeout_ms)
   sprintf(cmd_line, "ping -c 1 -w %d %s", timeout_ms / 1000 + (timeout_ms % 1000) != 0, inet_ntoa(host_ip));
 #endif
 
+#if !defined (TARGET_DARWIN_TVOS)
   int status = system (cmd_line);
 
   int result = WIFEXITED(status) ? WEXITSTATUS(status) : -1;
@@ -564,6 +565,9 @@ bool CNetworkLinux::PingHost(unsigned long remote_ip, unsigned int timeout_ms)
     CLog::Log(LOGERROR, "Ping fail : status = %d, errno = %d : '%s'", status, errno, cmd_line);
 
   return result == 0;
+#else
+  return false;
+#endif
 }
 
 #if defined(TARGET_DARWIN) || defined(TARGET_FREEBSD)

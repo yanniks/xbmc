@@ -116,16 +116,17 @@ HANDLE FindFirstFile(LPCSTR szPath,LPWIN32_FIND_DATA lpFindData)
   CXHandle *pHandle = new CXHandle(CXHandle::HND_FIND_FILE);
     pHandle->m_FindFileDir = strDir;
 
+#if !defined(TARGET_DARWIN_TVOS)
   while (n-- > 0)
   {
     std::string strComp(namelist[n]->d_name);
     StringUtils::ToLower(strComp);
-
     if (re.RegFind(strComp.c_str()) >= 0)
       pHandle->m_FindFileResults.push_back(namelist[n]->d_name);
     free(namelist[n]);
   }
   free(namelist);
+#endif
 
   if (pHandle->m_FindFileResults.size() == 0)
   {

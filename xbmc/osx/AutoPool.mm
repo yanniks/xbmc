@@ -29,11 +29,15 @@
 
 CCocoaAutoPool::CCocoaAutoPool()
 {
+#if !TARGET_OS_TV
   m_opaque_pool = [[NSAutoreleasePool alloc] init];
+#endif
 }
 CCocoaAutoPool::~CCocoaAutoPool()
 {
+#if !TARGET_OS_TV
   [(NSAutoreleasePool*)m_opaque_pool release];
+#endif
 }
 
 void* Cocoa_Create_AutoReleasePool(void)

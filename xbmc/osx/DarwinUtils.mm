@@ -490,9 +490,9 @@ bool CDarwinUtils::HasVideoToolboxDecoder(void)
 int CDarwinUtils::BatteryLevel(void)
 {
   float batteryLevel = 0;
-#if defined(TARGET_DARWIN_IOS)
+#if defined(TARGET_DARWIN_IOS) && !defined(TARGET_DARWIN_TVOS)
   batteryLevel = [[UIDevice currentDevice] batteryLevel];
-#else
+#elif !defined(TARGET_DARWIN_TVOS)
   CFTypeRef powerSourceInfo = IOPSCopyPowerSourcesInfo();
   CFArrayRef powerSources = IOPSCopyPowerSourcesList(powerSourceInfo);
 

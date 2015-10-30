@@ -113,8 +113,10 @@ static CEvent keyboardFinishedEvent;
   CGFloat headingW = 0;
   if (_heading.text and _heading.text.length > 0)
   {
+#if !TARGET_OS_TV
     CGSize headingSize = [_heading.text sizeWithFont:[UIFont systemFontOfSize:[UIFont systemFontSize]]];
     headingW = MIN(self.bounds.size.width/2, headingSize.width+30);
+#endif
   }
   CGFloat kbHeight = _kbRect.size.width;
 #if __IPHONE_8_0
@@ -366,6 +368,8 @@ static CEvent keyboardFinishedEvent;
 {
   PRINT_SIGNATURE();
   self.text = nil;
+#if !TARGET_OS_TV
   [super dealloc];
+#endif
 }
 @end

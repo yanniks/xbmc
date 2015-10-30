@@ -33,10 +33,10 @@
 |   includes
 +---------------------------------------------------------------------*/
 #include <limits>
-#include <Neptune/Source/Core/NptDebug.h>
-#include <Neptune/Source/Core/NptFile.h>
-#include <Neptune/Source/Core/NptStrings.h>
-#include <Neptune/Source/Core/NptUtils.h>
+#include <Platinum/NptDebug.h>
+#include <Platinum/NptFile.h>
+#include <Platinum/NptStrings.h>
+#include <Platinum/NptUtils.h>
 
 #include "File.h"
 #include "FileFactory.h"
