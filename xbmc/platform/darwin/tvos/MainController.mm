@@ -43,8 +43,6 @@
 #include "log.h"
 #import "windowing/WindowingFactory.h"
 
-#undef BOOL
-
 using namespace KODI::MESSAGING;
 
 MainController *g_xbmcController;
@@ -1495,3 +1493,4 @@ int KODI_Run(bool renderGUI)
 }
 
 @end
+#undef BOOL
