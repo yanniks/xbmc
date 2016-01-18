@@ -70,6 +70,10 @@ MainController *g_xbmcController;
 @synthesize m_remoteIdleTimeout;
 @synthesize m_shouldRemoteIdle;
 @synthesize m_RemoteOSDSwipes;
+@synthesize m_touchDirection;
+@synthesize m_touchBeginSignaled;
+
+#define NEW_REMOTE_HANDLING 0
 
 #pragma mark - internal key press methods
 //--------------------------------------------------------------
@@ -354,10 +358,12 @@ MainController *g_xbmcController;
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRequireFailureOfGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
+#if (NEW_REMOTE_HANDLING)
   if (!m_mimicAppleSiri && [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]] && ([otherGestureRecognizer isKindOfClass:[UISwipeGestureRecognizer class]] || [otherGestureRecognizer isKindOfClass:[UITapGestureRecognizer class]]))
   {
     return YES;
   }
+#endif
   return NO;
 }
 
@@ -893,10 +899,12 @@ MainController *g_xbmcController;
           {
             m_currentClick = -1;
             m_currentKey = XBMCK_UNKNOWN;
+            m_touchBeginSignaled = false;
             break;
           }
           case UIGestureRecognizerStateChanged:
           {
+#if (NEW_REMOTE_HANDLING)
             CGPoint gesturePoint = [sender translationInView:m_glView];
             gesturePoint.x = gesturePoint.x/1.92;
             gesturePoint.y = gesturePoint.y/1.08;
@@ -970,12 +978,45 @@ MainController *g_xbmcController;
                   LOG("slow click");
                 }
               }
+#else
+              if (!m_touchBeginSignaled && m_touchDirection)
+              {
+                switch (m_touchDirection)
+                {
+                  case UISwipeGestureRecognizerDirectionRight:
+                    key = XBMCK_RIGHT;
+                    break;
+                  case UISwipeGestureRecognizerDirectionLeft:
+                    key = XBMCK_LEFT;
+                    break;
+                  case UISwipeGestureRecognizerDirectionUp:
+                    key = XBMCK_UP;
+                    break;
+                  case UISwipeGestureRecognizerDirectionDown:
+                    key = XBMCK_DOWN;
+                    break;
+                  default:
+                    break;
+                }
+                m_touchBeginSignaled = true;
+                [self startKeyPressTimer:key];
+#endif
             }
             break;
           }
           case UIGestureRecognizerStateEnded:
           case UIGestureRecognizerStateCancelled:
+#if (NEW_REMOTE_HANDLING)
             [self stopKeyPressTimer];
+#else
+            if (m_touchBeginSignaled)
+            {
+              m_touchBeginSignaled = false;
+              m_touchDirection = NULL;
+              [self stopKeyPressTimer];
+              [self sendKeyUp:key];
+            }
+#endif
             // start remote idle timer
             [self startRemoteTimer];
             break;
@@ -994,6 +1035,7 @@ MainController *g_xbmcController;
   {
     if(!m_mimicAppleSiri && m_appAlive == YES)//NO GESTURES BEFORE WE ARE UP AND RUNNING
     {
+#if (NEW_REMOTE_HANDLING)
       switch ([sender direction])
       {
         case UISwipeGestureRecognizerDirectionRight:
@@ -1009,7 +1051,9 @@ MainController *g_xbmcController;
           [self sendKeyDownUp:XBMCK_DOWN];
           break;
       }
+#endif
     }
+    m_touchDirection = [sender direction];
   }
   // start remote idle timer
   [self startRemoteTimer];

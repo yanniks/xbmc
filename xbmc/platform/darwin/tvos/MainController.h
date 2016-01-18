@@ -64,6 +64,8 @@ typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
   CGFloat                     m_remoteIdleTimeout;
   BOOL                        m_shouldRemoteIdle;
   BOOL                        m_RemoteOSDSwipes;
+  unsigned long               m_touchDirection;
+  bool                        m_touchBeginSignaled;
   UIPanGestureRecognizerDirection m_direction;
 }
 // why are these properties ?
@@ -81,6 +83,8 @@ typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
 @property CGFloat             m_remoteIdleTimeout;
 @property BOOL                m_shouldRemoteIdle;
 @property BOOL                m_RemoteOSDSwipes;
+@property unsigned long       m_touchDirection;
+@property bool                m_touchBeginSignaled;
 @property UIPanGestureRecognizerDirection m_direction;
 
 - (void) pauseAnimation;
