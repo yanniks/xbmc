@@ -207,38 +207,26 @@ MainController *g_xbmcController;
 //--------------------------------------------------------------
 - (XBMCKey)getPanDirectionKey:(CGPoint)translation
 {
-  int x = (int)translation.x;
-  int y = (int)translation.y;
-  int absX = x;
-  int absY = y;
-  
-  if (absX < 0)
-    absX *= -1;
-  
-  if (absY < 0)
-    absY *= -1;
-  
-  bool horizontal, veritical;
-  horizontal = ( absX > absY ) ;
-  veritical = !horizontal;
-  
-  // Determine up, down, right, or left:
-  bool swipe_up, swipe_down, swipe_left, swipe_right;
-  swipe_left = (horizontal && x < 0);
-  swipe_right = (horizontal && x >= 0);
-  swipe_up = (veritical && y < 0);
-  swipe_down = (veritical && y >= 0);
-  
-  if (swipe_down)
-    return XBMCK_DOWN;
-  if (swipe_up)
-    return XBMCK_UP;
-  if (swipe_left)
-    return XBMCK_LEFT;
-  if (swipe_right)
-    return XBMCK_RIGHT;
-  
-  return XBMCK_UNKNOWN;
+  XBMCKey key = XBMCK_UNKNOWN;
+  switch([self getPanDirection:translation])
+  {
+    case UIPanGestureRecognizerDirectionDown:
+      key = XBMCK_DOWN;
+      break;
+    case UIPanGestureRecognizerDirectionUp:
+      key = XBMCK_UP;
+      break;
+    case UIPanGestureRecognizerDirectionLeft:
+      key = XBMCK_LEFT;
+      break;
+    case UIPanGestureRecognizerDirectionRight:
+      key = XBMCK_RIGHT;
+      break;
+    case UIPanGestureRecognizerDirectionUndefined:
+      break;
+  }
+
+  return key;
 }
 
 //--------------------------------------------------------------
